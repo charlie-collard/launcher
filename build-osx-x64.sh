@@ -11,7 +11,7 @@ build() {
     shasum -a 256 build/libs/RuneLite.jar
 
     pushd native
-    cmake -DCMAKE_OSX_ARCHITECTURES=x86_64 -B build-x64 .
+    cmake -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_OSX_DEPLOYMENT_TARGET=10.12 -B build-x64 .
     cmake --build build-x64 --config Release
     popd
 
@@ -46,8 +46,8 @@ build() {
     echo Dumping RuneLite binary
     otool -l $APPBASE/Contents/MacOS/RuneLite
 
-    RL_MINOS=$(otool -l $APPBASE/Contents/MacOS/RuneLite | awk '/LC_BUILD_VERSION/{f=1} f && /minos/{print $2; exit}')
-    JAVA_MINOS=$(otool -l $APPBASE/Contents/Resources/jre/lib/libjava.dylib | awk '/LC_BUILD_VERSION/{f=1} f && /minos/{print $2; exit}')
+    RL_MINOS=$(otool -l $APPBASE/Contents/MacOS/RuneLite | awk '/LC_VERSION_MIN_MACOSX/{f=1} f && /version/{print $2; exit}')
+    JAVA_MINOS=$(otool -l $APPBASE/Contents/Resources/jre/lib/libjava.dylib | awk '/LC_VERSION_MIN_MACOSX/{f=1} f && /version/{print $2; exit}')
     echo "minos: RL: $RL_MINOS Java: $JAVA_MINOS"
 
     if [ "$(printf '%s\n%s\n' "$RL_MINOS" "$JAVA_MINOS" | sort -V | tail -n1)" = "$JAVA_MINOS" ] && [ "$JAVA_MINOS" != "$RL_MINOS" ] ; then
